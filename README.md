@@ -38,7 +38,7 @@ py -m http.server 8000
 
 ## Screenshots
 
-![Main Overview](https://github.com/tdnk-td/larpy-kat-festival/blob/main/assets/images/calculator-overview.png)
+![Main Overview](https://github.com/tdnk-td/larpy-kat-festival/blob/main/assets/images/1.png)
 
 
 ![Weekly Tracking](https://github.com/tdnk-td/larpy-kat-festival/blob/main/assets/images/2.png)
