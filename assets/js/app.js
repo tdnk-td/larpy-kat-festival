@@ -46,7 +46,7 @@ const shugoAlertAudio = new Audio("assets/audio/shugo.mp3");
 let shugoAlertWindowKey = null;
 let shugoAlertMuted = true;
 
-shugoAlertAudio.volume = 0.15;
+shugoAlertAudio.volume = 0.05;
 
 function setShugoAlertStatus() {
   const muteButton = document.getElementById("shugo-alert-mute");
