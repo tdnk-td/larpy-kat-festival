@@ -36,4 +36,11 @@ With Python 3 installed, open a terminal in this folder and run:
 py -m http.server 8000
 ```
 
+## Screenshots
+
+![Main Overview](https://github.com/tdnk-td/larpy-kat-festival/blob/main/assets/images/calculator-overview.png)
+
+
+![Weekly Tracking](https://github.com/tdnk-td/larpy-kat-festival/blob/main/assets/images/2.png)
+
 Then visit <http://localhost:8000>. Stop the server with `Ctrl+C`. On macOS or Linux, use `python3 -m http.server 8000` instead.
