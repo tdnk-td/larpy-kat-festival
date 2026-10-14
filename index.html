@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10131b">
+  <title>AION II — Adventurer's Checklist</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+  <main class="app">
+    <header class="hero">
+      <div class="brand-row">
+        <div class="emblem" aria-hidden="true">⚔</div>
+        <div>
+          <p class="eyebrow">ADVENTURER'S COMPANION</p>
+          <h1>AION <span>II</span></h1>
+        </div>
+        <span class="live-pill"><i></i> LOCAL TRACKER</span>
+      </div>
+      <div class="account-controls">
+        <label class="membership-toggle" for="membership-toggle">
+          <input id="membership-toggle" type="checkbox" />
+          <span>Membership</span>
+        </label>
+      </div>
+
+      <div class="shugo-alert-box hero-alert-box" aria-live="polite">
+        <div class="shugo-alert-copy">
+          <strong>Shugo Festival</strong>
+          <span id="shugo-alert-status">Muted</span>
+        </div>
+        <div class="shugo-alert-row">
+          <div class="shugo-alert-copy-inline">
+            <span id="shugo-alert-countdown" class="shugo-alert-countdown">Calculating next event…</span>
+            <small id="shugo-alert-note">Sound plays 5 minutes before the event.</small>
+          </div>
+          <div class="shugo-alert-actions">
+            <button id="shugo-alert-mute" class="icon-button" type="button" aria-label="Mute Shugo alert" title="Mute alert">🔇</button>
+          </div>
+        </div>
+      </div>
+
+      <p class="intro">Your daily routine, weekly goals, and server reset countdowns in one place.</p>
+    </header>
+
+    <section class="reset-grid" aria-label="Server reset countdowns">
+      <article class="reset-card daily-card">
+        <div class="card-heading">
+          <div><p class="eyebrow teal">DAILY RESET</p><h2>Daily activities</h2></div>
+          <span class="card-icon" aria-hidden="true">☀</span>
+        </div>
+        <p class="reset-rule">Every day · 07:00 UTC</p>
+        <p id="daily-clock" class="countdown" aria-live="off">--:--:--</p>
+        <p id="daily-date" class="reset-date">Calculating next reset…</p>
+        <div class="progress-track"><div id="daily-bar" class="progress-fill teal-fill"></div></div>
+        <p class="reset-note">Duty Missions, Nightmare attempts, and other daily activities.</p>
+      </article>
+      <article class="reset-card weekly-card">
+        <div class="card-heading">
+          <div><p class="eyebrow gold">WEEKLY RESET</p><h2>Weekly activities</h2></div>
+          <span class="card-icon" aria-hidden="true">✦</span>
+        </div>
+        <p class="reset-rule">Every Wednesday · 07:00 UTC</p>
+        <p id="weekly-clock" class="countdown" aria-live="off">--d --:--:--</p>
+        <p id="weekly-date" class="reset-date">Calculating next reset…</p>
+        <div class="progress-track"><div id="weekly-bar" class="progress-fill gold-fill"></div></div>
+        <p class="reset-note">Shugo Festival, Ascension Trials, and weekly content per your schedule.</p>
+      </article>
+    </section>
+
+    <section class="character-widget" aria-label="Character profiles">
+      <div class="widget-header">
+        <div class="active-character-block">
+          <p class="eyebrow">CHARACTERS</p>
+          <div class="active-character-row">
+            <button id="active-character-name" class="active-character-name" type="button">Character 1</button>
+            <button id="edit-character-name" class="edit-character-name" type="button" aria-label="Edit active character name">Edit</button>
+          </div>
+        </div>
+      </div>
+      <div id="character-switcher" class="character-switcher" role="tablist" aria-label="Switch characters"></div>
+    </section>
+
+    <section class="tracker">
+      <div class="tracker-top">
+        <div>
+          <p class="eyebrow">YOUR PROGRESS</p>
+          <h2>Activity checklist</h2>
+        </div>
+        <div class="progress-number"><strong id="progress-count">0 / 15</strong><span id="progress-percent">0% complete</span></div>
+      </div>
+      <div class="overall-track"><div id="overall-bar"></div></div>
+
+      <nav class="tabs" aria-label="Checklist filter">
+        <button class="tab active" data-tab="Daily" aria-pressed="true">Daily</button>
+        <button class="tab" data-tab="Weekly" aria-pressed="false">Weekly</button>
+        <button class="tab" data-tab="All" aria-pressed="false">All tasks</button>
+      </nav>
+      <div id="task-groups"></div>
+
+      <div class="footer-actions">
+        <button id="reset-checklist" class="button button-secondary">Reset visible checklist</button>
+        <button id="copy-checklist" class="button button-primary">Copy checklist</button>
+      </div>
+      <p id="toast" class="toast" role="status" aria-live="polite"></p>
+    </section>
+
+    <footer>
+      <span>AION II · PERSONAL TRACKER</span>
+      <span>Countdowns are calculated from UTC.</span>
+    </footer>
+  </main>
+
+  <div id="character-editor-modal" class="character-editor-modal hidden" aria-hidden="true">
+    <div class="character-editor-panel" role="dialog" aria-modal="true" aria-labelledby="character-editor-title">
+      <div class="character-editor-header">
+        <h3 id="character-editor-title">Edit character</h3>
+      </div>
+      <label class="editor-field" for="character-name-input">
+        <span>Name</span>
+        <input id="character-name-input" type="text" maxlength="20" placeholder="Character name" />
+      </label>
+      <label class="editor-field" for="character-class-select">
+        <span>Class</span>
+        <select id="character-class-select">
+          <option value="templar">🛡 Templar</option>
+          <option value="gladiator">⚔ Gladiator</option>
+          <option value="assassin">🗡 Assassin</option>
+          <option value="ranger">🏹 Ranger</option>
+          <option value="sorcerer">✨ Sorcerer</option>
+          <option value="spiritmaster">🕊 Spiritmaster</option>
+          <option value="cleric">✚ Cleric</option>
+          <option value="chanter">♫ Chanter</option>
+        </select>
+      </label>
+      <div class="editor-actions">
+        <button id="cancel-character-edit" class="button button-secondary" type="button">Cancel</button>
+        <button id="save-character-details" class="button button-primary" type="button">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
