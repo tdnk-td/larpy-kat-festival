@@ -20,7 +20,7 @@ const TASK_GROUPS = [
   {
     title: "CRAFTING & SHOPS", period: "Weekly", items: [
       { id: "wind-breeze-odyle", name: "Wind Breeze Odyle", detail: "Buy Odyle from the Wind Breeze Shop", max: 20, tag: "20×" },
-      { id: "morph", name: "Substance Morph Odyle Craft", detail: "Craft Odyle from Substance Morph", max: 20, tag: "20×" },
+      { id: "morph", name: "Substance Morph Odyle Craft", detail: "Craft Odyle from Substance Morph", max: 20, alternateMax: 4, tag: "20×", alternateTag: "4×" },
       { id: "pve", name: "PvE Weeklies", detail: "Command Merchant · Main City", max: 12, tag: "12×", mainOnly: true },
       { id: "pvp", name: "PvP Weeklies", detail: "Command Merchant · Abyss", max: 20, tag: "20×", mainOnly: true }
     ]
@@ -115,7 +115,10 @@ function isMainCharacter(index = state.activeCharacter) {
 function getCharacterClass(character = activeCharacter()) {
   return CLASS_DETAILS[character?.classKey] || CLASS_DETAILS.templar;
 }
-function getItemMax(item) {
+function getItemMax(item, characterIndex = state.activeCharacter) {
+  if (!isMainCharacter(characterIndex) && typeof item.alternateMax === "number") {
+    return item.alternateMax;
+  }
   if (state.membership && typeof item.membershipMax === "number") {
     return item.membershipMax;
   }
@@ -125,9 +128,14 @@ function getItemDetail(item) {
   if (state.membership && item.membershipDetail) return item.membershipDetail;
   return item.detail;
 }
-function getItemTag(item) {
+function getItemTag(item, characterIndex = state.activeCharacter) {
+  if (!isMainCharacter(characterIndex) && item.alternateTag) return item.alternateTag;
   if (state.membership && item.membershipTag) return item.membershipTag;
   return item.tag;
+}
+function isItemComplete(item, character, characterIndex = state.activeCharacter) {
+  return !!character.done[item.id] ||
+    (item.max > 1 && Number(character.counts[item.id] || 0) >= getItemMax(item, characterIndex));
 }
 function loadState() {
   try {
@@ -190,7 +198,7 @@ function allVisibleItems(characterIndex = state.activeCharacter) {
 function characterProgress(character = activeCharacter(), characterIndex = state.activeCharacter) {
   const items = TASK_GROUPS.flatMap(group => group.items)
     .filter(item => !item.mainOnly || isMainCharacter(characterIndex));
-  const done = items.filter(item => !!character.done[item.id]).length;
+  const done = items.filter(item => isItemComplete(item, character, characterIndex)).length;
   return { done, total: items.length, percent: items.length ? Math.round(done / items.length * 100) : 0 };
 }
 function renderCharacterWidget() {
@@ -238,7 +246,7 @@ function render() {
   const groupsRoot = document.getElementById("task-groups");
   const character = activeCharacter();
   groupsRoot.innerHTML = visibleGroups().map(group => {
-    const doneCount = group.items.filter(item => !!character.done[item.id]).length;
+    const doneCount = group.items.filter(item => isItemComplete(item, character)).length;
     return `<section class="group">
       <div class="group-heading"><h3>${escapeHTML(group.title)}</h3><span>${doneCount} / ${group.items.length} complete</span></div>
       <div class="task-list">${group.items.map(item => renderTask(item, character)).join("")}</div>
@@ -276,7 +284,7 @@ function render() {
       if (!item) return;
       const currentCharacter = activeCharacter();
       const itemMax = getItemMax(item);
-      const current = Number(currentCharacter.counts[id] || 0);
+      const current = Math.min(itemMax, Number(currentCharacter.counts[id] || 0));
       currentCharacter.counts[id] = Math.max(0, Math.min(itemMax, current + Number(button.dataset.delta)));
       currentCharacter.done[id] = currentCharacter.counts[id] >= itemMax;
       saveState(); render();
@@ -287,8 +295,8 @@ function render() {
 }
 function renderTask(item, character = activeCharacter()) {
   const itemMax = getItemMax(item);
-  const checked = !!character.done[item.id];
   const count = Math.max(0, Math.min(itemMax, Number(character.counts[item.id] || 0)));
+  const checked = isItemComplete(item, character);
   const step = Number(item.step || 1);
   const tag = getItemTag(item);
   const detail = getItemDetail(item);
@@ -315,7 +323,7 @@ function findItem(id) {
 function updateProgress() {
   const character = activeCharacter();
   const items = allVisibleItems();
-  const done = items.filter(item => !!character.done[item.id]).length;
+  const done = items.filter(item => isItemComplete(item, character)).length;
   const percent = items.length ? Math.round(done / items.length * 100) : 0;
   document.getElementById("progress-count").textContent = `${done} / ${items.length}`;
   document.getElementById("progress-percent").textContent = `${percent}% complete`;
@@ -380,10 +388,10 @@ document.getElementById("reset-checklist").addEventListener("click", () => {
 document.getElementById("copy-checklist").addEventListener("click", async () => {
   const character = activeCharacter();
   const text = visibleGroups().map(group => `${group.title}\n${group.items.map(item => {
-    const count = Number(character.counts[item.id] || 0);
     const itemMax = getItemMax(item);
+    const count = Math.max(0, Math.min(itemMax, Number(character.counts[item.id] || 0)));
     const tag = getItemTag(item);
-    return `${character.done[item.id] ? "[x]" : "[ ]"} ${item.name} — ${tag}${item.max > 1 ? ` (${count}/${itemMax})` : ""}`;
+    return `${isItemComplete(item, character) ? "[x]" : "[ ]"} ${item.name} — ${tag}${item.max > 1 ? ` (${count}/${itemMax})` : ""}`;
   }).join("\n")}`).join("\n\n");
   try {
     await navigator.clipboard.writeText(text);
